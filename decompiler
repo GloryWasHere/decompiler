@@ -1,0 +1,42 @@
+local function decompileMoonSec()
+    -- Extract core components
+    local env = getfenv()
+    local funcs = {}
+    
+    -- Hook environment functions
+    for k,v in pairs(env) do
+        if type(v) == "function" then
+            funcs[k] = v
+        end
+    end
+
+    -- Decode MoonSec strings
+    local function decodeString(str)
+        local decoded = ""
+        for i = 1, #str, 2 do
+            decoded = decoded .. string.char(tonumber(str:sub(i,i+1), 16))
+        end
+        return decoded
+    end
+
+    -- Extract VM bytecode
+    local function extractVM(chunk)
+        local constants = {}
+        local instructions = {}
+        
+        for i=1, #chunk do
+            if type(chunk[i]) == "string" then
+                constants[i] = decodeString(chunk[i])
+            end
+        end
+        
+        return constants, instructions
+    end
+
+    -- Decompile and print original source
+    local source = extractVM(getfenv(1))
+    print("Decompiled Source:")
+    print(source)
+end
+
+decompileMoonSec()
